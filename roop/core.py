@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import shutil
+import sys
+
 # single thread doubles cuda performance - needs to be set before torch import
 if any(arg.startswith('--execution-provider') for arg in sys.argv):
     os.environ['OMP_NUM_THREADS'] = '1'
 
-import warnings
-from typing import List
+import argparse
 import platform
 import signal
-import argparse
-import torch
-import onnxruntime
+import warnings
+from typing import List
 
+import onnxruntime
 import roop.globals
 import roop.metadata
-import roop.utilities as util
 import roop.ui as ui
-from settings import Settings
+import roop.utilities as util
+import torch
+from chain_img_processor import ChainBatchImageProcessor, ChainImgProcessor, ChainVideoProcessor
 from roop.face_util import extract_face_images
-from chain_img_processor import ChainImgProcessor, ChainVideoProcessor, ChainBatchImageProcessor
+from settings import Settings
 
 clip_text = None
 
@@ -167,9 +168,9 @@ def update_status(message: str, scope: str = 'ROOP.CORE') -> None:
 def start() -> None:
     if roop.globals.headless:
         faces = extract_face_images(roop.globals.source_path,  (False, 0))
-        roop.globals.INPUT_FACES.append(faces[roop.globals.source_face_index])
+        roop.globals.INPUT_FACES.append(faces[roop.globals.source_face_index])[0]
         faces = extract_face_images(roop.globals.target_path,  (False, util.has_image_extension(roop.globals.target_path)))
-        roop.globals.TARGET_FACES.append(faces[roop.globals.target_face_index])
+        roop.globals.TARGET_FACES.append(faces[roop.globals.target_face_index])[0]
         if 'face_enhancer' in roop.globals.frame_processors:
             roop.globals.selected_enhancer = 'GFPGAN'
        
